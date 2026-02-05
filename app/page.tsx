@@ -1,6 +1,3 @@
-import { redirect } from 'next/navigation';
-
-
-export default async function Home() {
-    redirect('/topaz-tools')
+export default function Home() {
+    return <></>
 }
