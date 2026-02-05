@@ -1,4 +1,4 @@
-import TopazToolsCliente from "./topaz-tools/topaz-tools-cliente";
+import TopazToolsCliente from "@/app/(topaz-tools)/topaz-tools-cliente";
 
 export default function TopazToolsPage() {
     return <>
