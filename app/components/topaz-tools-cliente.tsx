@@ -1,10 +1,10 @@
 'use client'
 
 import {Binary, MousePointer2} from "lucide-react"
-import ColaDecode from "@/app/(topaz-tools)/cola-decode";
+import ColaDecode from "@/app/components/cola-decode";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {useState} from "react";
-import IndicadorDecode from "@/app/(topaz-tools)/indicador-decode";
+import IndicadorDecode from "@/app/components/indicador-decode";
 
 
 export default function TopazToolsCliente() {

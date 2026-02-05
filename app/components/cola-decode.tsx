@@ -6,7 +6,7 @@ import {Progress} from "@/components/ui/progress";
 import {useState} from "react";
 import {analizarColaAction} from "@/domain/cola-decode.action";
 import {ColaRow} from "@/types/cola";
-import ColaTable from "@/app/(topaz-tools)/cola-tabela";
+import ColaTable from "@/app/components/cola-tabela";
 
 export default function ColaDecode() {
 

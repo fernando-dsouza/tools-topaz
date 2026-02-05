@@ -4,11 +4,11 @@ import {Button} from "@/components/ui/button";
 import {useState} from "react";
 import {analizarColaAction} from "@/domain/cola-decode.action";
 import {ColaRow} from "@/types/cola";
-import ColaTable from "@/app/(topaz-tools)/cola-tabela";
+import ColaTable from "@/app/components/cola-tabela";
 import {Input} from "@/components/ui/input";
 import {analisarIndicadorAction} from "@/domain/indicador-decode.action";
 import {Indicador} from "@/types/indicador";
-import IndicadorTable from "@/app/(topaz-tools)/indicador-tabela";
+import IndicadorTable from "@/app/components/indicador-tabela";
 
 const COLUNAS = 25
 
