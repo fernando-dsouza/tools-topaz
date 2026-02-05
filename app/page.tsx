@@ -1,6 +1,6 @@
-import TopazToolsCliente from "@/app/topaz-tools/topaz-tools-cliente";
+import TopazToolsCliente from "./topaz-tools/topaz-tools-cliente";
 
-export default async function TopazToolsPage() {
+export default function TopazToolsPage() {
     return <>
         <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <TopazToolsCliente/>
