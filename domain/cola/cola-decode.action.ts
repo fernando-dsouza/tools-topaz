@@ -1,6 +1,6 @@
 'use server'
 
-import {analizarCola, isVisibleRow, ordenarPorCampo} from "@/domain/cola-decode.service";
+import {analizarCola, isVisibleRow, ordenarPorCampo} from "@/domain/cola/cola-decode.service";
 import {ColaRow} from "@/types/cola";
 
 export async function analizarColaAction(

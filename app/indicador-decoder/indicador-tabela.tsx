@@ -1,6 +1,6 @@
 import {
     Table,
-    TableBody,
+    TableBody, TableCaption,
     TableCell,
     TableRow,
 } from "@/components/ui/table"
@@ -44,9 +44,9 @@ export default function IndicadorTable({indicadores, colunas}: { indicadores: In
                             </TableRow>
                         ))}
                     </TableBody>
+                    <TableCaption className='mb-1'>Fim dos valores decodificados</TableCaption>
                 </Table>
             </div>
-            <p className="mt-2 text-xs text-gray-400">Fim dos valores decodificados</p>
         </div>
     )
 }

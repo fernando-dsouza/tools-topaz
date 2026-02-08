@@ -1,22 +1,44 @@
 import {Card, CardContent, CardTitle} from "@/components/ui/card";
-import {Clipboard, ClipboardPaste, Maximize, Search, Trash2, Sheet} from "lucide-react";
+import {Clipboard, Binary, Maximize, Search, Trash2, Sheet} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Textarea} from "@/components/ui/textarea";
 import {Progress} from "@/components/ui/progress";
-import {useState} from "react";
-import {analizarColaAction} from "@/domain/cola-decode.action";
+import {useEffect, useState} from "react";
+import {analizarColaAction} from "@/domain/cola/cola-decode.action";
 import {ColaRow} from "@/types/cola";
-import ColaTable from "@/app/components/cola-tabela";
+import ColaTable from "@/app/cola-decoder/cola-tabela";
 
 export default function ColaDecode() {
 
-    const [texto, setTexto] = useState("");
+    const [texto, setTexto] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const salvo = localStorage.getItem('stringCola');
+            try {
+                return salvo ? JSON.parse(salvo) : '';
+            } catch (err) {
+                console.error(err)
+                return '';
+            }
+        }
+        return '';
+    });
+
     const [dadosCola, setDadosCola] = useState<ColaRow[]>()
 
     async function buscaTextoAreaTransferencia() {
         const text = await navigator.clipboard.readText();
         setTexto(text);
     }
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (texto) {
+                localStorage.setItem('stringCola', JSON.stringify(texto))
+            }
+        }, 500);
+
+        return () => clearTimeout(timer)
+    }, [texto])
 
     async function analisarCola(cola: string, largocola: number) {
         const dadosCola = await analizarColaAction(cola, largocola)
@@ -31,7 +53,7 @@ export default function ColaDecode() {
             <Card className='p-0 gap-0 h-fit overflow-hidden border-none w-full'>
                 <CardTitle className='flex items-center space-x-2 p-3 mb-0 justify-between'>
                     <div className="flex space-x-2">
-                        <ClipboardPaste className='h-3 w-3 text-gray-300'/>
+                        <Binary className='h-3 w-3 text-gray-300'/>
                         <p className='text-gray-300 text-[12px]'>STRING COLA</p>
                     </div>
                     <div className="flex space-x-2">

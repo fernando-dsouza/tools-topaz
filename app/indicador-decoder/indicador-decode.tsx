@@ -1,27 +1,46 @@
 import {Card, CardContent, CardTitle} from "@/components/ui/card";
-import {Clipboard, ClipboardPaste, Search, Trash2, Sheet} from "lucide-react";
+import {Clipboard, MousePointer2, Search, Trash2, Sheet} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import {useState} from "react";
-import {analizarColaAction} from "@/domain/cola-decode.action";
-import {ColaRow} from "@/types/cola";
-import ColaTable from "@/app/components/cola-tabela";
+import {useEffect, useState} from "react";
 import {Input} from "@/components/ui/input";
-import {analisarIndicadorAction} from "@/domain/indicador-decode.action";
+import {analisarIndicadorAction} from "@/domain/indicador/indicador-decode.action";
 import {Indicador} from "@/types/indicador";
-import IndicadorTable from "@/app/components/indicador-tabela";
+import IndicadorTable from "@/app/indicador-decoder/indicador-tabela";
 
 const COLUNAS = 25
 
 export default function IndicadorDecode() {
 
     const [colunas, setColunas] = useState<number>(COLUNAS);
-    const [texto, setTexto] = useState("");
     const [dadosIndicador, setDadosIndicador] = useState<Indicador[][]>()
+
+    const [texto, setTexto] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const salvo = localStorage.getItem('stringIndicador');
+            try {
+                return salvo ? JSON.parse(salvo) : '';
+            } catch (err) {
+                console.error(err)
+                return '';
+            }
+        }
+        return '';
+    });
 
     async function buscaTextoAreaTransferencia() {
         const text = await navigator.clipboard.readText();
         setTexto(text);
     }
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (texto) {
+                localStorage.setItem('stringIndicador', JSON.stringify(texto))
+            }
+        }, 500);
+
+        return () => clearTimeout(timer)
+    }, [texto])
 
     async function analisarIndicador(indicador: string) {
         const dadosIndicador = await analisarIndicadorAction(indicador, COLUNAS)
@@ -33,7 +52,7 @@ export default function IndicadorDecode() {
             <Card className='p-0 gap-0 h-fit overflow-hidden border-none w-full'>
                 <CardTitle className='flex items-center space-x-2 p-3 mb-0 justify-between'>
                     <div className="flex space-x-2">
-                        <ClipboardPaste className='h-3 w-3 text-gray-300'/>
+                        <MousePointer2 className='h-3 w-3 text-gray-300'/>
                         <p className='text-gray-300 text-[12px]'>STRING MOV-INDICATORS</p>
                     </div>
                     <div className="flex space-x-2">
@@ -50,7 +69,7 @@ export default function IndicadorDecode() {
                         <Button className='bg-blue-500 h-7 cursor-pointer'
                                 onClick={() => analisarIndicador(texto)}>
                             <Search/>
-                            Analisar Indicador
+                            Analisar indicador
                         </Button>
                     </div>
                 </CardTitle>
