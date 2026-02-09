@@ -8,6 +8,7 @@ export type LogIndexEntry = {
     hora: string;
     nivel: string;
     contexto: string;
+    mensagem: string;
 };
 
 export function createLogIndex(logId: string) {
@@ -23,12 +24,12 @@ export function createLogIndex(logId: string) {
         await fs.promises.writeFile(
             indexPath,
             JSON.stringify(entries),
-            "utf-8"
+            "utf8"
         );
     }
 
     async function load(): Promise<LogIndexEntry[]> {
-        const content = await fs.promises.readFile(indexPath, "utf-8");
+        const content = await fs.promises.readFile(indexPath, "utf8");
         return JSON.parse(content);
     }
 

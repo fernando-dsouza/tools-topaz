@@ -8,7 +8,7 @@ interface FiltroNivelMultiProps {
     onFiltroChange: (niveis: string[]) => void;
 }
 
-const niveisDisponiveis = ["Erro", "Notificación", "Depurar", "Fase"];
+const niveisDisponiveis = ['Advertência', 'Depurar', 'Erro', 'Fase', 'Notificação', 'Rastrear'];
 
 export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
     const [selecionados, setSelecionados] = useState<string[]>([]);
@@ -18,7 +18,6 @@ export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
             ? selecionados.filter((n) => n !== nivel)
             : [...selecionados, nivel];
 
-        console.log(novosSelecionados);
         setSelecionados(novosSelecionados);
         onFiltroChange(novosSelecionados);
     };
