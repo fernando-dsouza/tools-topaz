@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { LogIndexEntry } from "./log-index.service";
+import {LogIndexEntry} from "./log-index.service";
 
 interface QueryParams {
     file: string;
@@ -37,22 +37,16 @@ export async function queryLog({
         await fs.promises.readFile(indexPath, "utf-8")
     );
 
+    console.log(contexto, mensagem)
+
     // 🔍 filtro inicial (somente metadados)
     const filtered = index.filter((entry) => {
-        if (
-            nivel &&
-            nivel.length > 0 &&
-            !nivel.some(
-                (n) => n.toLowerCase() === entry.nivel.toLowerCase()
-            )
-        ) {
+        if (nivel && nivel.length > 0
+            && !nivel.some((n) => n.toLowerCase() === entry.nivel.toLowerCase())) {
             return false;
         }
 
-        if (
-            contexto &&
-            !entry.contexto.toLowerCase().includes(contexto.toLowerCase())
-        ) {
+        if (contexto && !entry.contexto.toLowerCase().includes(contexto.toLowerCase())) {
             return false;
         }
 
@@ -81,14 +75,6 @@ export async function queryLog({
             );
 
             const raw = buffer.toString("utf-8");
-
-            // filtro por mensagem (conteúdo real)
-            if (
-                mensagem &&
-                !raw.toLowerCase().includes(mensagem.toLowerCase())
-            ) {
-                continue;
-            }
 
             logs.push({
                 data: entry.data,

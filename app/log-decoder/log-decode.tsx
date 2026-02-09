@@ -29,27 +29,60 @@ export default function LogDecode() {
     const [logsProcessados, setLogsProcessados] = useState<Log[]>();
     const [conteudo, setConteudo] = useState<string>('')
 
+    const [filtroContexto, setFiltroContexto] = useState<string>('')
+
+    const [offset, setOffset] = useState<number>(0);
+    const [hasMore, setHasMore] = useState<boolean>(true); // Para saber se ainda há dados
+    const LIMIT = 50; // Aumentei o limite para uma rolagem mais fluida
+
     const [logFile, setLogFile] = useState<string>();
 
-    async function processarConteudoLog(filtro: string[]) {
+    async function processarConteudoLog(filtro: string[], isNewSearch: boolean = true) {
         if (!logFile) return;
+
+        const currentOffset = isNewSearch ? 0 : offset;
 
         try {
             const res = await axios.get("/api/log/query", {
                 params: {
                     file: logFile,
-                    offset: 0,
-                    limit: 200,
+                    offset: currentOffset,
+                    limit: LIMIT,
                     nivel: filtro,
+                    contexto: filtroContexto,
                 },
                 paramsSerializer: {
-                    indexes: false,
+                    serialize: (params) => {
+                        const searchParams = new URLSearchParams();
+
+                        Object.entries(params).forEach(([key, value]) => {
+                            if (value === undefined || value === null) return;
+
+                            if (Array.isArray(value)) {
+                                // Aqui forçamos a repetição da chave: nivel=Fase&nivel=Depurar
+                                value.forEach(v => searchParams.append(key, v));
+                            } else {
+                                searchParams.append(key, String(value));
+                            }
+                        });
+
+                        return searchParams.toString();
+                    }
                 },
             });
 
-            setLogsProcessados(res.data.logs);
-            console.log(res.data.logs);
+            const novosLogs = res.data.logs;
 
+            if (isNewSearch) {
+                setLogsProcessados(novosLogs);
+                setOffset(novosLogs.length);
+            } else {
+                setLogsProcessados(prev => [...(prev || []), ...novosLogs]);
+                setOffset(prev => prev + novosLogs.length);
+            }
+
+            // Se a API retornou menos que o limite, não há mais dados
+            setHasMore(novosLogs.length === LIMIT);
         } catch (error) {
             console.error("Erro ao consultar log", error);
         }
@@ -164,7 +197,12 @@ export default function LogDecode() {
                 </CardTitle>
                 <LogTabela rows={logsProcessados ?? []}
                            semConteudo={conteudo?.length === 0}
-                           analisarLog={processarConteudoLog}/>
+                           analisarLog={processarConteudoLog}
+                           contexto={filtroContexto}
+                           aoMudarContexto={setFiltroContexto}
+                           onLoadMore={processarConteudoLog}
+                           hasMore={hasMore}
+                />
             </Card>
         </div>
     </>

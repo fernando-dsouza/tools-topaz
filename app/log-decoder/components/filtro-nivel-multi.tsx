@@ -18,6 +18,7 @@ export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
             ? selecionados.filter((n) => n !== nivel)
             : [...selecionados, nivel];
 
+        console.log(novosSelecionados);
         setSelecionados(novosSelecionados);
         onFiltroChange(novosSelecionados);
     };
@@ -25,7 +26,8 @@ export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="outline" className="text-[12px] border-gray-700 bg-gray-800 text-gray-300">
+                <Button variant="outline"
+                        className="text-[12px] border-gray-700 bg-gray-800 text-gray-300 cursor-pointer">
                     <Filter className="h-3 w-3"/>
                     Níveis ({selecionados.length})
                 </Button>
@@ -38,7 +40,7 @@ export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
                                 id={nivel}
                                 checked={selecionados.includes(nivel)}
                                 onCheckedChange={() => toggleNivel(nivel)}
-                                className="border-gray-500"
+                                className="border-gray-500 cursor-pointer"
                             />
                             <label
                                 htmlFor={nivel}
