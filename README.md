@@ -1,4 +1,4 @@
-# 💎 Topaz Tools
+# 💎 Topaz Tools - Topaz Core Banking
 
 > Uma suíte de ferramentas de alta performance desenvolvida com **Next.js** para decodificação e análise de dados técnicos (Logs, Colas de Mensageria e Indicadores).
 
