@@ -34,7 +34,7 @@ Uma ferramenta poderosa para análise de arquivos de log massivos sem travar o n
 *   **Paginação Virtualizada:** Renderização eficiente de milhares de linhas.
 *   **Preview Instantâneo:** Visualização imediata do conteúdo.
 
-![Screenshot Log Decoder](https://placehold.co/600x400?text=Screenshot+Log+Decoder)
+![Screenshot Log Decoder](docs/preview-cola.png)
 
 ### 2. 🧩 Cola Decoder
 Decodificador para strings de mensageria de sistemas legados (campo "COLA").
@@ -44,7 +44,7 @@ Decodificador para strings de mensageria de sistemas legados (campo "COLA").
 *   **Dicas Visuais:** Tooltips explicativos sobre o significado de cada campo (MVTOS, Livre, etc.).
 *   **Contagem Automática:** Validação de tamanho da string.
 
-![Screenshot Cola Decoder](https://placehold.co/600x400?text=Screenshot+Cola+Decoder)
+![Screenshot Cola Decoder](docs/preview-cola.png)
 
 ### 3. 📊 Indicador Decoder (MOV-INDICATORS)
 Módulo especializado para visualização de indicadores de movimento.
@@ -52,7 +52,7 @@ Módulo especializado para visualização de indicadores de movimento.
 *   **Grid Configurável:** Ajuste dinâmico de colunas (Padrão: 25).
 *   **Visualização Clara:** Bits e flags exibidos de forma organizada.
 
-![Screenshot Indicador Decoder](https://placehold.co/600x400?text=Screenshot+Indicador+Decoder)
+![Screenshot Indicador Decoder](docs/preview-indicador.png)
 
 ---
 
