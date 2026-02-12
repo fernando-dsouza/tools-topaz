@@ -1,7 +1,7 @@
-export type ColaRow = {
+export type LinhaCola = {
     tipo: string
     campo: string
-    largo: number
+    tamanho: number
     valorAtual?: string
     valorAnterior?: string
 }

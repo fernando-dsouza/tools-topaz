@@ -1,33 +1,33 @@
-import {useState} from "react";
-import {Button} from "@/components/ui/button";
-import {Checkbox} from "@/components/ui/checkbox";
-import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import {Filter} from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Filter } from "lucide-react";
 
-interface FiltroNivelMultiProps {
-    onFiltroChange: (niveis: string[]) => void;
+interface PropsFiltroNiveis {
+    aoAlterarFiltro: (niveis: string[]) => void;
 }
 
 const niveisDisponiveis = ['Advertência', 'Depurar', 'Erro', 'Fase', 'Notificação', 'Rastrear'];
 
-export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
-    const [selecionados, setSelecionados] = useState<string[]>([]);
+export function FiltroNiveis({ aoAlterarFiltro }: PropsFiltroNiveis) {
+    const [selecionados, definirSelecionados] = useState<string[]>([]);
 
-    const toggleNivel = (nivel: string) => {
+    const alternarNivel = (nivel: string) => {
         const novosSelecionados = selecionados.includes(nivel)
             ? selecionados.filter((n) => n !== nivel)
             : [...selecionados, nivel];
 
-        setSelecionados(novosSelecionados);
-        onFiltroChange(novosSelecionados);
+        definirSelecionados(novosSelecionados);
+        aoAlterarFiltro(novosSelecionados);
     };
 
     return (
         <Popover>
             <PopoverTrigger asChild>
                 <Button variant="outline"
-                        className="text-[12px] border-gray-700 bg-gray-800 text-gray-300 cursor-pointer">
-                    <Filter className="h-3 w-3"/>
+                    className="text-[12px] border-gray-700 bg-gray-800 text-gray-300 cursor-pointer">
+                    <Filter className="h-3 w-3" />
                     Níveis ({selecionados.length})
                 </Button>
             </PopoverTrigger>
@@ -38,7 +38,7 @@ export function FiltroNivelMulti({onFiltroChange}: FiltroNivelMultiProps) {
                             <Checkbox
                                 id={nivel}
                                 checked={selecionados.includes(nivel)}
-                                onCheckedChange={() => toggleNivel(nivel)}
+                                onCheckedChange={() => alternarNivel(nivel)}
                                 className="border-gray-500 cursor-pointer"
                             />
                             <label

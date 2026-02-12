@@ -1,19 +1,17 @@
-import {Indicador} from "@/types/indicador";
+import { Indicador } from "@/domain/indicador/indicador.types";
 
-function converterHexParaBinario(hexString: string) {
-    const str = hexString.toLowerCase();
+function converterHexParaBinario(textoHex: string) {
+    const texto = textoHex.toLowerCase();
     const resultado: Indicador[] = [];
 
-    for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-        const bin = parseInt(char, 16).toString(2).padStart(4, '0');
+    for (let i = 0; i < texto.length; i++) {
+        const char = texto[i];
+        const binario = parseInt(char, 16).toString(2).padStart(4, '0');
 
-        if (bin.includes("NaN")) {
-            // Se der erro, precisamos seguir a estrutura do objeto
-            resultado.push({valor: "ERR"});
+        if (binario.includes("NaN")) {
+            resultado.push({ valor: "ERR" });
         } else {
-            // Transformamos cada bit em um objeto { bit: "0" } ou { bit: "1" }
-            const objetosBits = bin.split('').map(b => ({
+            const objetosBits = binario.split('').map(b => ({
                 valor: b
             }));
 

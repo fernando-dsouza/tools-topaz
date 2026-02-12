@@ -1,50 +1,62 @@
-import {ParsedLog} from "@/domain/log/log.types";
+import { LogProcessado } from "@/domain/log/log.types";
 
-export function createLogBrowserParser(fileId: string) {
+export function criarProcessadorLogNavegador(idArquivo: number) {
     let buffer = "";
-    let bufferOffset = 0;
-    let globalIndex = 0
-    const encoder = new TextEncoder();
+    let deslocamentoBuffer = 0;
+    let indiceGlobal = 0
+    let numeroLinhaAtual = 1;
+    const codificador = new TextEncoder();
 
-    // Regex levemente ajustada para garantir captura no streaming
-    const logRegex = /^(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2}\s+\d{3})\s+([^:]+):\[(.*?)\]\s*([\s\S]*?)(?:\r?\n(?=\d{2}\/\d{2}\/\d{4})|$)/gm;
+    const regexLog = /^(\d{2}\/\d{2}\/\d{4})\s+(\d{2}:\d{2}:\d{2}\s+\d{3})\s+([^:]+):\[(.*?)\]\s*([\s\S]*?)(?:\r?\n(?=\d{2}\/\d{2}\/\d{4})|$)/gm;
 
-    function push(chunkStr: string, onLogFound: (log: ParsedLog) => void) {
-        buffer += chunkStr;
+    function contarQuebrasDeLinha(texto: string): number {
+        return (texto.match(/\n/g) || []).length;
+    }
 
-        let match: RegExpExecArray | null;
-        let lastIndex = 0;
+    function adicionar(pedacoTexto: string, aoEncontrarLog: (log: LogProcessado) => void) {
+        buffer += pedacoTexto;
 
-        while ((match = logRegex.exec(buffer)) !== null) {
-            globalIndex += 1
-            const fullMatch = match[0];
-            const startIndex = match.index;
+        let correspondencia: RegExpExecArray | null;
+        let ultimoIndice = 0;
 
-            // No browser, usamos TextEncoder para saber o tamanho real em bytes
-            const bytes = encoder.encode(fullMatch);
+        while ((correspondencia = regexLog.exec(buffer)) !== null) {
+            indiceGlobal += 1
+            const correspondenciaCompleta = correspondencia[0];
+            const indiceInicio = correspondencia.index;
 
-            onLogFound({
-                id_arquivo: fileId,
-                offset: bufferOffset + startIndex,
-                length: bytes.length,
-                data: match[1],
-                hora: match[2],
-                nivel: match[3],
-                contexto: match[4],
-                mensagem: match[5].trim(),
-                index: globalIndex
+            const textoAntesDaCorrespondencia = buffer.slice(ultimoIndice, indiceInicio);
+            const linhasAntes = contarQuebrasDeLinha(textoAntesDaCorrespondencia);
+
+            numeroLinhaAtual += linhasAntes;
+
+            const linhaLog = numeroLinhaAtual;
+
+            const linhasNaCorrespondencia = contarQuebrasDeLinha(correspondenciaCompleta);
+            numeroLinhaAtual += linhasNaCorrespondencia;
+
+            const bytes = codificador.encode(correspondenciaCompleta);
+
+            aoEncontrarLog({
+                idArquivo: idArquivo,
+                deslocamento: deslocamentoBuffer + indiceInicio,
+                comprimento: bytes.length,
+                data: correspondencia[1],
+                hora: correspondencia[2],
+                nivel: correspondencia[3],
+                contexto: correspondencia[4],
+                mensagem: correspondencia[5].trim(),
+                indice: indiceGlobal,
+                linha: linhaLog
             });
-            lastIndex = logRegex.lastIndex;
+            ultimoIndice = regexLog.lastIndex;
         }
 
-        // Remove do buffer apenas o que já foi processado
-        if (lastIndex > 0) {
-            buffer = buffer.slice(lastIndex);
-            bufferOffset += lastIndex;
-            logRegex.lastIndex = 0;
+        if (ultimoIndice > 0) {
+            buffer = buffer.slice(ultimoIndice);
+            deslocamentoBuffer += ultimoIndice;
+            regexLog.lastIndex = 0;
         }
     }
 
-    return {push};
+    return { adicionar };
 }
-

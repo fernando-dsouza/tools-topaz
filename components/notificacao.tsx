@@ -1,6 +1,8 @@
-import {toast} from "sonner";
+import { toast } from "sonner";
 
-export default function notificacao(tipo: string, mensagem: string) {
+type TipoNotificacao = 'erro' | 'sucesso';
+
+export default function notificacao(tipo: TipoNotificacao, mensagem: string) {
     if (tipo === 'erro') return toast.error(mensagem, {
         position: "top-center",
         style: {

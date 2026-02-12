@@ -1,14 +1,13 @@
-import {ColaRow} from "@/types/cola";
+import { LinhaCola } from "@/domain/cola/cola.types";
 
+export function ordenarPorCampo(linhas: LinhaCola[]): LinhaCola[] {
+    return [...linhas].sort((a, b) => {
+        const aVazia = eLinhaVazia(a)
+        const bVazia = eLinhaVazia(b)
 
-export function ordenarPorCampo(rows: ColaRow[]): ColaRow[] {
-    return [...rows].sort((a, b) => {
-        const aEmpty = isEmptyRow(a)
-        const bEmpty = isEmptyRow(b)
-
-        if (aEmpty && !bEmpty) return 1
-        if (!aEmpty && bEmpty) return -1
-        if (aEmpty && bEmpty) return 0
+        if (aVazia && !bVazia) return 1
+        if (!aVazia && bVazia) return -1
+        if (aVazia && bVazia) return 0
 
         return a.campo.localeCompare(b.campo, undefined, {
             numeric: true,
@@ -17,33 +16,38 @@ export function ordenarPorCampo(rows: ColaRow[]): ColaRow[] {
     })
 }
 
-export function isEmptyRow(row: ColaRow): boolean {
+export function eLinhaVazia(linha: LinhaCola): boolean {
     return (
-        !row.tipo &&
-        !row.campo &&
-        row.largo === 0 &&
-        !row.valorAtual &&
-        !row.valorAnterior
+        !linha.tipo &&
+        !linha.campo &&
+        linha.tamanho === 0 &&
+        !linha.valorAtual &&
+        !linha.valorAnterior
     )
 }
 
-export function isVisibleRow(row: ColaRow): boolean {
-    return !isEmptyRow(row);
+export function eLinhaVisivel(linha: LinhaCola): boolean {
+    return !eLinhaVazia(linha);
 }
 
-export function analizarCola(
+export function analisarCola(
     cola: string,
-    largocola: number
-): ColaRow[] {
+    tamanhoCola: number
+): LinhaCola[] {
     let indice = 1
-    let largo5 = false
-    const rows: ColaRow[] = []
+    let tamanho5 = false
+    const linhas: LinhaCola[] = []
 
-    while (indice < largocola && cola !== '') {
+    if (!cola) return [];
+
+    while (indice < tamanhoCola && cola !== '') {
+        // Previne loop infinito se indice não avançar ou exceder tamanho de forma insegura
+        if (indice > cola.length) break;
+
         let parte = cola.substring(indice - 1, indice)
 
         if (!['1', '2', '3'].includes(parte)) {
-            largo5 = true
+            tamanho5 = true
             indice++
             parte = cola.substring(indice - 1, indice)
         }
@@ -51,36 +55,44 @@ export function analizarCola(
         const tipo = parte
         indice++
 
-        const campo = largo5
+        const campo = tamanho5
             ? cola.substring(indice - 1, indice + 4)
             : cola.substring(indice - 1, indice + 3)
 
-        indice += largo5 ? 5 : 4
+        indice += tamanho5 ? 5 : 4
 
-        const largoStr = cola.substring(indice - 1, indice + 2)
-        const largo = parseInt(largoStr.trim()) || 0
+        const tamanhoStr = cola.substring(indice - 1, indice + 2)
+        const tamanho = parseInt(tamanhoStr.trim()) || 0
         indice += 3
 
         let valorAtual = ''
         let valorAnterior = ''
 
-        if (largo > 0) {
-            const valor = cola.substring(indice - 1, indice - 1 + largo)
+        if (tamanho > 0) {
+            const valor = cola.substring(indice - 1, indice - 1 + tamanho)
 
             if (tipo === '1') valorAtual = valor
             if (tipo === '2') valorAnterior = valor
 
             if (tipo === '3') {
                 valorAtual = valor
-                indice += largo
-                valorAnterior = cola.substring(indice - 1, indice - 1 + largo)
+                indice += tamanho
+                valorAnterior = cola.substring(indice - 1, indice - 1 + tamanho)
             }
 
-            indice += largo
+            indice += tamanho
         }
 
-        rows.push({tipo, campo, largo, valorAtual, valorAnterior})
+        linhas.push({ tipo, campo, tamanho, valorAtual, valorAnterior })
     }
 
-    return rows
+    return linhas
+}
+
+export function processarCola(cola: string, tamanhoCola: number): LinhaCola[] {
+    if (!cola || tamanhoCola <= 0) return [];
+
+    const analisado = analisarCola(cola, tamanhoCola);
+    const ordenado = ordenarPorCampo(analisado);
+    return ordenado.filter(eLinhaVisivel);
 }

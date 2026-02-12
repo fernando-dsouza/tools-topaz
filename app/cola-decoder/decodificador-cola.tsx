@@ -1,49 +1,35 @@
-import {Card, CardContent, CardTitle} from "@/components/ui/card";
-import {Clipboard, Binary, Maximize, Search, Trash2, Sheet} from "lucide-react";
-import {Button} from "@/components/ui/button";
-import {Textarea} from "@/components/ui/textarea";
-import {Progress} from "@/components/ui/progress";
-import {useEffect, useState} from "react";
-import {analizarColaAction} from "@/domain/cola/cola-decode.action";
-import {ColaRow} from "@/types/cola";
-import ColaTable from "@/app/cola-decoder/cola-tabela";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Clipboard, Binary, Maximize, Search, Trash2, Sheet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { useCallback, useState } from "react";
+import { processarCola } from "@/domain/cola/cola-decode.service";
+import { LinhaCola } from "@/domain/cola/cola.types";
+import { TabelaCola } from "@/app/cola-decoder/tabela-cola";
+import { useArmazenamentoLocal } from "@/hooks/use-armazenamento-local";
+import { Spinner } from "@/components/ui/spinner";
 
-export default function ColaDecode() {
+export default function DecodificadorCola() {
+    const [texto, definirTexto] = useArmazenamentoLocal('stringCola', '');
+    const [dadosCola, definirDadosCola] = useState<LinhaCola[]>();
+    const [carregando, definirCarregando] = useState(false);
 
-    const [texto, setTexto] = useState<string>(() => {
-        if (typeof window !== 'undefined') {
-            const salvo = localStorage.getItem('stringCola');
-            try {
-                return salvo ? JSON.parse(salvo) : '';
-            } catch (err) {
-                console.error(err)
-                return '';
-            }
+    const buscarTextoAreaTransferencia = useCallback(async () => {
+        const textoArea = await navigator.clipboard.readText();
+        definirTexto(textoArea);
+    }, [definirTexto]);
+
+    const analisarCola = useCallback(async (cola: string, larguraCola: number) => {
+        definirCarregando(true);
+        try {
+            await new Promise(resolver => setTimeout(resolver, 10));
+            const dadosProcessados = processarCola(cola, larguraCola);
+            definirDadosCola(dadosProcessados);
+        } finally {
+            definirCarregando(false);
         }
-        return '';
-    });
-
-    const [dadosCola, setDadosCola] = useState<ColaRow[]>()
-
-    async function buscaTextoAreaTransferencia() {
-        const text = await navigator.clipboard.readText();
-        setTexto(text);
-    }
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            if (texto) {
-                localStorage.setItem('stringCola', JSON.stringify(texto))
-            }
-        }, 500);
-
-        return () => clearTimeout(timer)
-    }, [texto])
-
-    async function analisarCola(cola: string, largocola: number) {
-        const dadosCola = await analizarColaAction(cola, largocola)
-        setDadosCola(dadosCola)
-    }
+    }, []);
 
     const tamanhoTexto = texto.length
     const percentual = (tamanhoTexto * 100) / 5000
@@ -53,18 +39,18 @@ export default function ColaDecode() {
             <Card className='p-0 gap-0 h-fit overflow-hidden border-none w-full'>
                 <CardTitle className='flex items-center space-x-2 p-3 mb-0 justify-between'>
                     <div className="flex space-x-2">
-                        <Binary className='h-3 w-3 text-gray-300'/>
+                        <Binary className='h-3 w-3 text-gray-300' />
                         <p className='text-gray-300 text-[12px]'>STRING COLA</p>
                     </div>
                     <div className="flex space-x-2">
                         <Button className='bg-gray-100/10 cursor-pointer h-7 text-[12px] text-gray-300'
-                                onClick={() => setTexto('')}>
-                            <Trash2/>
+                            onClick={() => definirTexto('')}>
+                            <Trash2 />
                             Limpar
                         </Button>
                         <Button className='bg-gray-100/10 cursor-pointer h-7 text-[12px] text-gray-300'
-                                onClick={() => buscaTextoAreaTransferencia()}>
-                            <Clipboard className='h-2 w-2'/>
+                            onClick={() => buscarTextoAreaTransferencia()}>
+                            <Clipboard className='h-2 w-2' />
                             Colar
                         </Button>
                     </div>
@@ -74,7 +60,7 @@ export default function ColaDecode() {
                         className='rounded-none bg-black text-gray-100 h-[144px] border-none'
                         value={texto}
                         placeholder='Cole o texto do campo "COLA" aqui...'
-                        onChange={(e) => setTexto(e.target.value)}/>
+                        onChange={(e) => definirTexto(e.target.value)} />
                 </CardContent>
             </Card>
 
@@ -82,7 +68,7 @@ export default function ColaDecode() {
                 <Card className='p-0 gap-0 h-32 overflow-hidden border-none'>
                     <CardTitle className='flex items-center h-26 space-x-2 p-3 mb-0 justify-between'>
                         <div className="flex space-x-2">
-                            <Maximize className='h-3 w-3 text-gray-300'/>
+                            <Maximize className='h-3 w-3 text-gray-300' />
                             <p className='text-gray-300 text-[12px]'>LARGURA STRING</p>
                         </div>
                     </CardTitle>
@@ -91,13 +77,14 @@ export default function ColaDecode() {
                             <p className='text-[35px] text-gray-300'>{tamanhoTexto}</p>
                             <p className='text-[14px] text-gray-400 mb-2.5'>Chars</p>
                         </div>
-                        <Progress value={percentual} className="bg-primary"/>
+                        <Progress value={percentual} className="bg-primary" />
                     </CardContent>
                 </Card>
 
                 <Button className='bg-blue-500 h-12 w-full cursor-pointer'
-                        onClick={() => analisarCola(texto, tamanhoTexto)}>
-                    <Search/>
+                    disabled={carregando || !texto}
+                    onClick={() => analisarCola(texto, tamanhoTexto)}>
+                    {carregando ? <Spinner /> : <Search />}
                     Analisar COLA
                 </Button>
             </div>
@@ -107,11 +94,14 @@ export default function ColaDecode() {
             <Card className='p-0 gap-0 h-fit overflow-hidden border-none'>
                 <CardTitle className='flex items-center space-x-2 p-3 mb-0 justify-between'>
                     <div className="flex space-x-2">
-                        <Sheet className='h-3 w-3 text-gray-300'/>
-                        <p className='text-gray-300 text-[12px]'>DECODE</p>
+                        <Sheet className='h-3 w-3 text-gray-300' />
+                        <p className='text-gray-300 text-[12px]'>DECODIFICAR</p>
                     </div>
                 </CardTitle>
-                <ColaTable rows={dadosCola ?? []}/>
+                {dadosCola && dadosCola.length === 0
+                    ? <p className="text-gray-500 text-sm text-center py-6">Nenhum resultado encontrado.</p>
+                    : <TabelaCola linhas={dadosCola ?? []} />
+                }
             </Card>
         </div>
     </>
